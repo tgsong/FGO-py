@@ -1,8 +1,8 @@
-import json,os,sys,time
+import json,os,sys,time,platform
 from threading import Thread
 from PyQt6.QtCore import Qt,pyqtSignal
 from PyQt6.QtGui import QAction,QIcon
-from PyQt6.QtWidgets import QApplication,QInputDialog,QMainWindow,QMenu,QMessageBox,QStyle,QSystemTrayIcon
+from PyQt6.QtWidgets import QApplication,QInputDialog,QMainWindow,QMenu,QMessageBox,QSystemTrayIcon
 import fgoDevice
 import fgoKernel
 from fgoMainWindow import Ui_fgoMainWindow
@@ -33,9 +33,10 @@ class MyMainWindow(QMainWindow,Ui_fgoMainWindow):
     def __init__(self,parent=None):
         super().__init__(parent)
         self.setupUi(self)
-        self.setWindowIcon(QIcon('fgoIco.ico'))
+        if platform.system()=='Darwin':fgoMainWindow.setStyleSheet("QWidget{font-family:\"PingFang SC\";font-size:15px}")
+        self.setWindowIcon(QIcon('fgoIcon.ico'))
         self.TRAY=QSystemTrayIcon(self)
-        self.TRAY.setIcon(QIcon('fgoIco.ico'))
+        self.TRAY.setIcon(QIcon('fgoIcon.ico'))
         self.TRAY.setToolTip('FGO-py')
         self.MENU_TRAY=QMenu(self)
         self.MENU_TRAY_QUIT=QAction('退出',self.MENU_TRAY)
@@ -157,6 +158,12 @@ class MyMainWindow(QMainWindow,Ui_fgoMainWindow):
     def runLottery(self):self.runFunc(fgoKernel.lottery)
     def runMail(self):self.runFunc(fgoKernel.mail)
     def runSynthesis(self):self.runFunc(fgoKernel.synthesis)
+    def expBall(self):
+        QMessageBox.information(self,'FGO-py','''
+搓丸子是一个基于FGO-py的独立项目<br/>
+<a href="https://github.com/hgjazhgj/FGO-ExpBall">FGO-ExpBall</a><br/>
+你看见了这个弹窗,说明你已经能够运行FGO-py了<br/>
+那么,无需任何其他配置,你可以直接运行FGO-ExpBall''')
     def stopOnSpecialDrop(self):
         num,ok=QInputDialog.getInt(self,'FGO-py','剩余的特殊掉落数量',1,0,1919810,1)
         if ok:fgoKernel.schedule.stopOnSpecialDrop(num)
@@ -180,9 +187,8 @@ class MyMainWindow(QMainWindow,Ui_fgoMainWindow):
 全自动免配置跨平台开箱即用的FGO助手
 <table border="0">
   <tr><td>当前版本</td><td>{fgoKernel.__version__}</td></tr>
-  <tr><td>作者</td><td>hgjazhgj</td></tr>
-  <tr><td>项目地址</td><td><a href="https://github.com/hgjazhgj/FGO-py">https://github.com/hgjazhgj/FGO-py</a></td></tr>
-  <tr><td>电子邮箱</td><td><a href="mailto:huguangjing0411@geektip.cc">huguangjing0411@geektip.cc</a></td></tr>
+  <tr><td>作者</td><td><a href="https://github.com/hgjazhgj">hgjazhgj</a></td></tr>
+  <tr><td>项目主页</td><td><a href="https://fgo-py.hgjazhgj.top/">https://fgo-py.hgjazhgj.top/</a></td></tr>
   <tr><td>QQ群</td><td>932481680</td></tr>
 </table>
 <!-- 都看到这里了真的不考虑资瓷一下吗... -->
@@ -193,6 +199,7 @@ class MyMainWindow(QMainWindow,Ui_fgoMainWindow):
   <td><img height="148" width="148" src="data:image/bmp;base64,Qk1mAQAAAAAAAD4AAAAoAAAAJQAAACUAAAABAAEAAAAAACgBAAB0EgAAdBIAAAAAAAAAAAAAAAAAAP///wABNpugAAAAAH0Q2oL4AAAARb1nmkAAAABFZnR3IAAAAEXpv9AwAAAAfZSA10AAAAABXdMVYAAAAP8qTsdQAAAAMd998EgAAACighiQeAAAAFCt3LiwAAAAo3aTXIAAAACAQzl8SAAAAEehYzFgAAAAcZ0FlEAAAACmEjZXoAAAAD2l77w4AAAAvy27zoAAAAD4P5FWQAAAAEYVS3VwAAAAyXKhYYAAAACvQwA4OAAAALyhfNNwAAAAhuODSLAAAABIC/+BMAAAABpa6jMwAAAA6TltfQAAAAATihl8wAAAACzQ8IxIAAAA/zQAZ/gAAAABVVVUAAAAAH0qre3wAAAARXxupRAAAABFiJ3tEAAAAEUGtG0QAAAAfWa6DfAAAAABsL3cAAAAAA=="/></td>
   <td><font face="Courier New">42Cnr V9Tuz E1jiS<br/>2ucGw tzN8g F6o4y<br/>9SkHs X1eZE vtiDf<br/>4QcL1 NXvfZ PhDu7<br/>LYStW rbsQM 9UUGW<br/>nqXgh ManMB dqjEW<br/>5oaDY</font></td>
 </tr></table>
+B站大会员每月<a href="https://account.bilibili.com/account/big/myPackage">领</a>5B币券<a href="https://space.bilibili.com/2632341">充电</a>
 ''')
     def license(self):os.system(f'start notepad {"LICENSE"if os.path.isfile("LICENSE")else"../LICENSE"}')
 

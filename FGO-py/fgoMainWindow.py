@@ -5,14 +5,12 @@
 
 
 from PyQt6 import QtCore, QtGui, QtWidgets
-import platform
 
 class Ui_fgoMainWindow(object):
     def setupUi(self, fgoMainWindow):
         fgoMainWindow.setObjectName("fgoMainWindow")
         fgoMainWindow.setFocusPolicy(QtCore.Qt.FocusPolicy.StrongFocus)
-        if platform.system()=='Darwin':fgoMainWindow.setStyleSheet("QWidget{font-family:\"PingFang SC\";font-size:15px}")
-        else:fgoMainWindow.setStyleSheet("QWidget{font-family:\"Microsoft YaHei UI Light\";font-size:15px}")
+        fgoMainWindow.setStyleSheet("QWidget{font-family:\"Microsoft YaHei UI Light\";font-size:15px}")
         self.widget = QtWidgets.QWidget(fgoMainWindow)
         self.widget.setObjectName("widget")
         self.verticalLayout = QtWidgets.QVBoxLayout(self.widget)
@@ -144,6 +142,8 @@ class Ui_fgoMainWindow(object):
         self.MENU_SCRIPT_GACHA.setObjectName("MENU_SCRIPT_GACHA")
         self.MENU_SCRIPT_SYNTHESIS = QtGui.QAction(fgoMainWindow)
         self.MENU_SCRIPT_SYNTHESIS.setObjectName("MENU_SCRIPT_SYNTHESIS")
+        self.MENU_SCRIPT_EXPBALL = QtGui.QAction(fgoMainWindow)
+        self.MENU_SCRIPT_EXPBALL.setObjectName("MENU_SCRIPT_EXPBALL")
         self.MENU_CONTROL_MAPKEY = QtGui.QAction(fgoMainWindow)
         self.MENU_CONTROL_MAPKEY.setCheckable(True)
         self.MENU_CONTROL_MAPKEY.setObjectName("MENU_CONTROL_MAPKEY")
@@ -184,6 +184,7 @@ class Ui_fgoMainWindow(object):
         self.MENU_SCRIPT.addAction(self.MENU_SCRIPT_LOTTERY)
         self.MENU_SCRIPT.addAction(self.MENU_SCRIPT_MAILFILTER)
         self.MENU_SCRIPT.addAction(self.MENU_SCRIPT_SYNTHESIS)
+        self.MENU_SCRIPT.addAction(self.MENU_SCRIPT_EXPBALL)
         self.MENU_CONTROL_169.addAction(self.MENU_CONTROL_169_INVOKE)
         self.MENU_CONTROL_169.addAction(self.MENU_CONTROL_169_REVOKE)
         self.MENU_CONTROL.addAction(self.MENU_CONTROL_STAYONTOP)
@@ -216,6 +217,7 @@ class Ui_fgoMainWindow(object):
         self.MENU_ABOUT_ABOUT.triggered.connect(fgoMainWindow.about)
         self.MENU_SCRIPT_GACHA.triggered.connect(fgoMainWindow.runGacha)
         self.MENU_SCRIPT_SYNTHESIS.triggered.connect(fgoMainWindow.runSynthesis)
+        self.MENU_SCRIPT_EXPBALL.triggered.connect(fgoMainWindow.expBall)
         self.MENU_CONTROL_MAPKEY.triggered['bool'].connect(fgoMainWindow.mapKey)
         self.BTN_STOPLATER.clicked['bool'].connect(fgoMainWindow.stopLater)
         self.MENU_SCRIPT_LOTTERY.triggered.connect(fgoMainWindow.runLottery)
@@ -276,6 +278,8 @@ class Ui_fgoMainWindow(object):
         self.MENU_SCRIPT_GACHA.setText(_translate("fgoMainWindow", "抽友情"))
         self.MENU_SCRIPT_SYNTHESIS.setStatusTip(_translate("fgoMainWindow", "在选择了强化对象未选择强化材料的界面运行本功能"))
         self.MENU_SCRIPT_SYNTHESIS.setText(_translate("fgoMainWindow", "礼装强化"))
+        self.MENU_SCRIPT_EXPBALL.setStatusTip(_translate("fgoMainWindow", "把若干张低星礼装合并成一个"))
+        self.MENU_SCRIPT_EXPBALL.setText(_translate("fgoMainWindow", "搓丸子"))
         self.MENU_CONTROL_MAPKEY.setText(_translate("fgoMainWindow", "加载按键映射"))
         self.MENU_SCRIPT_LOTTERY.setText(_translate("fgoMainWindow", "抽奖池"))
         self.MENU_SCRIPT_MAILFILTER.setText(_translate("fgoMainWindow", "领狗粮"))
