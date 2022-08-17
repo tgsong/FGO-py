@@ -124,7 +124,7 @@ class Detect(metaclass=logMeta(logger)):
         return result
     def getCardResist(self):return[{0:1,1:2}.get(self._select((IMG.WEAK,IMG.RESIST),(175+257*i,345,215+257*i,420)),0)for i in range(5)]
     def getCardServant(self,choices):...
-    def getEnemyHp(self,pos):return self._ocr((100+250*pos,41,222+250*pos,65))
+    def getEnemyHp(self,pos):return self._ocr((100+250*pos,37,222+250*pos,65))
     def getEnemyNp(self,pos):return(lambda count:(lambda c2:(c2,c2)if c2 else(lambda c0,c1:(c1,c0+c1))(count(IMG.CHARGE0),count(IMG.CHARGE1),))(count(IMG.CHARGE2)))(lambda img:self._count(img,(160+250*pos,67,250+250*pos,88)))
     def getFieldServant(self,pos):return(lambda img,cls:min((numpy.min(cv2.matchTemplate(img,i[...,:3],cv2.TM_SQDIFF_NORMED,mask=i[...,3])),no)for no,(_,portrait,_)in servantImg.items()if servantData[no][0]==cls[0]for i in portrait)[1]if cls else 0)(self._crop((120+318*pos,421,207+318*pos,490)),self.getFieldServantClassRank(pos))
     def getFieldServantClassRank(self,pos):return(lambda x:x if x is None else divmod(x,3))(self._select(CLASS[125],(13+318*pos,618,117+318*pos,702)))
