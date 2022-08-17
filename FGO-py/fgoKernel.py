@@ -115,11 +115,12 @@ class Turn:
                         continue
                     elif p[0]==2:
                         np=[Detect.cache.getFieldServantNp(i)if self.servant[i][0]else 100 for i in range(3)]
-                        if p[0]==0:
+                        if p[1]==0:
                             if any(i<100 for i in np):
                                 self.castServantSkill(i[1],i[2],0)
                                 continue
                         elif p[1]==1:
+                            np[i[1]]=100
                             target=numpy.argmin(np)
                             if np[target]<100:
                                 self.castServantSkill(i[1],i[2],target)
