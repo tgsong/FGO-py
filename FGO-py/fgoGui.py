@@ -131,7 +131,7 @@ class MyMainWindow(QMainWindow,Ui_fgoMainWindow):
             if t=='Battle':...
             elif t=='Main':
                 QMessageBox.information(self,'FGO-py',f'''
-<h2>Done</h2>
+<h2>{msg[0].split(':',1)[0]}</h2>
 在过去的<font color="#006400">{self.result['time']//3600:.0f}:{self.result['time']//60%60:02.0f}:{self.result['time']%60:02.0f}</font>中完成了<font color="#006400">{self.result['battle']}</font>场战斗<br/>
 平均每场战斗<font color="#006400">{self.result['turnPerBattle']:.1f}</font>回合,用时<font color="#006400">{self.result['timePerBattle']//60:.0f}:{self.result['timePerBattle']%60:02.1f}</font><br/>
 获得了以下素材:<br/>
@@ -203,7 +203,7 @@ class MyMainWindow(QMainWindow,Ui_fgoMainWindow):
   <tr><td>当前版本</td><td>{fgoKernel.__version__}</td></tr>
   <tr><td>作者</td><td><a href="https://github.com/hgjazhgj">hgjazhgj</a></td></tr>
   <tr><td>项目主页</td><td><a href="https://fgo-py.hgjazhgj.top/">https://fgo-py.hgjazhgj.top/</a></td></tr>
-  <tr><td>QQ群</td><td>932481680</td></tr>
+  <tr><td>QQ群</td><td>932481680(请按readme指引操作)</td></tr>
 </table>
 <!-- 都看到这里了真的不考虑资瓷一下吗... -->
 这是我的<font color="#00A0E8">支付宝</font>/<font color="#22AB38">微信</font>收款码和Monero地址<br/>请给我打钱<br/>
