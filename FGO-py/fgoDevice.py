@@ -1,8 +1,6 @@
 from fgoAndroid import Android
-from fgoDetect import Detect
+from fgoDetect import XDetect
 from fgoSchedule import schedule
-from fgoWindows import Window
-from fgoWsa import Wsa
 from fgoLogging import getLogger
 logger=getLogger('Device')
 
@@ -23,7 +21,7 @@ def gw(*args):
 @regHelper
 def bs4(*args):
     import winreg
-    with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,rf'SOFTWARE\BlueStacks_bgp64_hyperv\Guests\Android{f"_{args[0]}"if args else""}\Config')as key:return'127.0.0.1:'+winreg.QueryValueEx(key,"BstAdbPort")[0]
+    with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,rf'SOFTWARE\BlueStacks_bgp64_hyperv\Guests\Android{f"_{args[0]}"if args else""}\Config')as key:return f'127.0.0.1:{winreg.QueryValueEx(key,"BstAdbPort")[0]}'
 @regHelper
 def bs5(*args):
     import os,re,winreg
@@ -42,11 +40,15 @@ class Device:
         self.press=self.I.press
         self.touch=self.I.touch
         self.swipe=self.I.swipe
-        Detect.screenshot=self.screenshot=self.O.screenshot
+        XDetect.screenshot=self.screenshot=self.O.screenshot
     @staticmethod
     def createDevice(name,*args,**kwargs):
-        if name.lower().startswith('wsa'):return Wsa(name.split('_')[1])if'_'in name else Wsa()
-        if name.lower().startswith('win'):return Window(int(name.split('_')[1],16)if'_'in name else Window.enumDevices()[0])
+        if name.lower().startswith('wsa'):
+            from fgoWsa import Wsa
+            return Wsa(name.split('_')[1])if'_'in name else Wsa()
+        if name.lower().startswith('win'):
+            from fgoWindows import Window
+            return Window(int(name.split('_')[1],16)if'_'in name else Window.enumDevices()[0])
         return Android(convert(name),*args,**kwargs)
     @property
     def available(self):return self.I.available and(self.I is self.O or self.O.available)

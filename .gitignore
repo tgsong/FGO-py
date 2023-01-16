@@ -16,5 +16,8 @@ fgoTemp/
 Fuse*.png
 Capture*.png
 SpecialDrop*.png
+Screenshot*.png
+GachaHistory*.png
 Log*.txt
+fgoConfig.json
 FGO-py/fgoImage.cn

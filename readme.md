@@ -75,13 +75,16 @@ FGO-py一经立项,就把*打破当前游戏版本下想尽办法3t速刷的固�
 - 羁绊点数和御主礼装经验不再被浪费
 - **抽卡不用考虑强度只用考虑xp**
 - 在大量90+阴间本的环境下,xjbd能带给玩家最阳间的体验
+- 游戏从此没有「人权卡」
 - **xjbd都一天100+池了就别惦记着亏羁绊3t辣!**
 - 不管什么本直接上就行连作业都不用抄
 - 可以一键清完所有强化本
 - 剧情关锁人?游戏内组好队就行程序内还是只点击完成战斗
+- 不像有些3T脚本需要用户删掉练度不足的好友
+- 把你喜欢的从者编入队伍中
 - 拥有一队15羁绊的伊莉雅小黑美游真的超酷的好吗
 
-**如果你是为了3t而来,就另请高明吧!比如[FGA](https://github.com/Fate-Grand-Automata/FGA)**  
+**如果你是为了3t而来,就另请高明吧!**  
 这个程序能识别*一堆*战斗中用得上或用不上的数据,**可以半路接管战斗**,会依据当前的局势帮你筛选助战,放技能,放宝具,吃苹果,选卡,无需配置即可**无脑通过绝大部分非高难关卡,包括主线关卡**,实战7-12回合能够刷完无限池终本  
 除战斗外,还提供以下功能:抽友情池,抽无限池,领邮箱狗粮,礼装强化  
 
@@ -89,6 +92,7 @@ FGO-py一经立项,就把*打破当前游戏版本下想尽办法3t速刷的固�
 
 下载release - 运行`FGO-py.bat` - 连接设备 - 游戏中把你要刷的关卡放在第一个 - 点击「肝!」按钮  
 需要关闭「技能使用确认」  
+渠道服用户需要在初次运行后自行更改config.json中`package`为自己的包名  
 
 ***
 本项目在最初设计时就考虑到了在不同环境下运行的需求,完全前后端分离,目前前后端均已实现跨平台  
@@ -148,6 +152,7 @@ Cli大概长这样(在docker和手机中运行时的截图,本截图不是最新
 
 ### Windows 窗口
 
+本条目将被弃用  
 经由WindowsApi实现的截图和鼠标事件,适用于Windows平台直接运行的fgo游戏,其中包含安卓模拟器  
 
 0. 需要Windows 10版本1703或更高
@@ -244,7 +249,6 @@ v9.1及更早版本提供的需要配置的战斗,不建议在以下之外的场
 [Virtual-Key 代码](https://docs.microsoft.com/zh-cn/windows/win32/inputdev/virtual-key-codes)  
 [关于AidLux平台pip使用异常解决方案](https://community.aidlux.com/detail?id=384)  
 [airtest.core.android.ADB.devices不返回ipv6远程连接的设备](https://github.com/AirtestProject/Airtest/issues/818)  
-[Opt: specification for package name when get_render_resolution in an Android device](https://github.com/AirtestProject/Airtest/pull/1070)  
 
 ## 计划中的功能 Next Features
 
@@ -252,12 +256,103 @@ Add:利用宝具的首卡染色或色卡三连
 Add:御主技能识别与施放  
 Add:游戏启动与闪退重启  
 Add:计划作战  
+Add:onepush  
 
 # 版本记录 Version Logs
 
-## 2022/09/12 v9.7.3
+## 2022/01/01 v10.3.0
 
-Fix:处理下的配置保存  
+Add:抽卡记录统计导出  
+获取当前抽数以知晓保底还有多远  
+将完整抽卡记录合并为一张图片方便后续分析与查错  
+如果发现统计的抽数不正确,请在issue中附上生成的GachaHistory图片  
+Fix:[pr #93](https://github.com/hgjazhgj/FGO-py/pull/93)  
+
+## 2022/12/17 v10.2.2
+
+Fix:Cli下经典战斗前端16进制支持  
+Add:一些拐的助战模板  
+
+## 2022/12/12 v10.2.1
+
+Opt:增加了计数  
+
+## 2022/12/10 v10.2.0
+
+Upd:lottery  
+一方面,适配圣诞奖池的自动刷新,另一方面,切实检测抽奖结束而非依靠熔断  
+目前尚未有足够的测试验证计数值是否合适,发现还没抽完就停止时请在你的issue中附上fgoTemp目录下最新的若干张截图  
+~~Add:lottery+mailfilter~~  
+~~因此,现在可以串联调用lottery与mailfilter~~  
+一键百抽了邮箱筛选几乎没用了,就算要用也偶尔手动调用就行  
+Add:4-9枚狗粮的模板  
+7-9为备用  
+
+## 2022/11/17 v10.1.3
+
+Del:邪马台国活动收菜  
+
+## 2022/11/07 v10.1.2
+
+Add:cli下lock指令  
+可以在不退出FGO-py不断开设备连接的情况下暂时阻塞所有任务  
+此时只能使用更改设置等不会实际操作游戏的功能,精确地说,仅无法使用main|classic|call|continue|bench五个指令以及等效的exec  
+需要通过`lock -u`解锁才能继续使用,不会在执行任务时自动解锁  
+Opt:screenshot额外参数  
+可以指定文件名/存储路径与不在文件名后追加时间  
+Del:恢复截图的最高压缩  
+
+## 2022/11/05 v10.1.1
+
+Fix:gui下任务定义更改  
+
+## 2022/11/05 v10.1.0
+
+Add:邪马台国7*24自动收菜  
+注意cli中的battle命令没上锁,使用`main -a 1`代替  
+Fix:[tgsong/jp:14046e2](https://github.com/tgsong/FGO-py/commit/14046e281a555d2a0f631c541d7a6437cbbbb15e)  
+Fix:返回按钮  
+在掉礼装的时候返回按钮较短无法被一面六个敌人的键位按到  
+Opt:runOnce  
+满足runOnce设置config的需求  
+其实我不希望这样整个config传来传去,能拆开的参数尽早拆开,但是想要主动更改配置又好像必须这样  
+
+## 2022/10/25 v10.0.0
+
+操,review的时候突然发现这是一个不兼容更新,所以直接切大版本号了  
+Fix:runOnce  
+刚装好的虽然不runOnce但是要把VERSION写进config里  
+
+## 2022/10/24 v9.8.2
+
+Opt:进一步优化[discussion #86](https://github.com/hgjazhgj/FGO-py/discussions/86)  
+Add:经典战斗的一面6敌人支持  
+Opt:runOnce  
+刚装好的就不runOnce  
+Opt:Device lazy import  
+
+## 2022/10/15 v9.8.1
+
+Add:每面六个敌人  
+~~以及第一行一个大Boss第二行可能带两个跟班的情况~~  
+不然宝具放不出生存压力有点大  
+Opt:RunOnce  
+Fix:config初始生效  
+Opt:[discussion #86](https://github.com/hgjazhgj/FGO-py/discussions/86)  
+点6下对于3个弹窗来说确实有点吃紧了,加一点  
+
+## 2022/10/11 v9.8.0
+
+Add:配置管理  
+支持onepush需要新增配置项,为避免merge conflict,别处定义config meta然后读配置文件向其合并  
+但是怎么感觉写了个妖怪出来  
+Upd:[Airtest pr#1070](https://github.com/AirtestProject/Airtest/pull/1070)下游同步  
+解决在部分手机上运行时获取分辨率不正确的问题  
+非b服用户需要自行更改config.json中`package`为自己的包名  
+
+## 2022/09/15 v9.7.3
+
+Fix:cli下的配置保存  
 Fix:merge [pr #85](https://github.com/hgjazhgj/FGO-py/pull/85)  
 我之前写的Windows鼠标事件居然漏了两个参数并且几次review都没发现...  
 
@@ -791,7 +886,7 @@ Upd:预约终止计数由「战斗开始计数」改为「战斗结束计数」
 ## 2021/10/18 v7.5.1
 
 Add:Main可以在战斗中途调用了  
-这是为短线/闪退等异常原因导致脚本中断后的*补救*,使之能够从中断处继续运行而不至于先调用Battle等待战斗完成后再调用Main  
+这是为断线/闪退等异常原因导致脚本中断后的*补救*,使之能够从中断处继续运行而不至于先调用Battle等待战斗完成后再调用Main  
 你**不应该**在((没有从主界面进入战斗过||在上次战斗后切换了关卡)&&会继续战斗&&助战模板有技能信息)的情况下在战斗中途调用Main,不然由于没有获取过助战位置,会导致助战信息被放到错误的地方  
 这个地方得想个办法解决一下,我不想粗暴地加个校验禁止这样的情况发生,因为我的多数场景下助战模板时没有技能信息的  
 现在的想法是在Battle中增加额外的friendInfo,并识别当前从者是否为助战  

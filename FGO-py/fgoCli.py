@@ -1,12 +1,13 @@
-import argparse,cmd,functools,json,os,platform,re,signal,time
+import argparse,cmd,json,os,platform,re,signal,time
 import fgoDevice
 import fgoKernel
+from functools import wraps
 from fgoLogging import getLogger,color
 from fgoTeamupParser import IniParser
 logger=getLogger('Cli')
 
 def wrapTry(func):
-    @functools.wraps(func)
+    @wraps(func)
     def wrapper(self,*args,**kwargs):
         try:return func(self,*args,**kwargs)
         except ArgError as e:
@@ -31,15 +32,15 @@ Type help or ? to list commands, help <command> to get more information.
 Some commands support <command> [<subcommand> ...] {{-h, --help}} for further information.
 '''
     prompt='FGO-py\033[32m@Device\033[36m(Team)\033[0m> '
-    def __init__(self):
+    def __init__(self,config):
         super().__init__()
         fgoDevice.Device.enumDevices()
         self.teamup=IniParser('fgoTeamup.ini')
         self.teamup_load(argparse.Namespace(name='DEFAULT'))
-        with open('fgoConfig.json')as f:self.config=json.load(f)
-        fgoKernel.schedule.stopOnDefeated(self.config['stopOnDefeated'])
-        fgoKernel.schedule.stopOnKizunaReisou(self.config['stopOnKizunaReisou'])
-        fgoKernel.Main.teamIndex=self.config['teamIndex']
+        self.config=config
+        fgoKernel.schedule.stopOnDefeated(self.config.stopOnDefeated)
+        fgoKernel.schedule.stopOnKizunaReisou(self.config.stopOnKizunaReisou)
+        fgoKernel.Main.teamIndex=self.config.teamIndex
     def emptyline(self):return
     def precmd(self,line):
         if line:logger.info(line)
@@ -65,7 +66,7 @@ Some commands support <command> [<subcommand> ...] {{-h, --help}} for further in
         self.currentTeam=store
     def teamup_reload(self,arg):self.teamup=IniParser('teamup.ini')
     def teamup_list(self,arg):print('\n'.join(self.teamup.sections()))
-    def teamup_show(self,arg):print('\n'.join([f'team name: {self.currentTeam}',f'team index: {fgoKernel.Main.teamIndex}','servant skill & hougu:','\n'.join(['  '.join([str(i+1),'-'.join([''.join([str(x)for x in fgoKernel.ClassicTurn.skillInfo[i][j]])for j in range(3)]+[''.join([str(x)for x in fgoKernel.ClassicTurn.houguInfo[i]])])])for i in range(6)]),'master skill:','   '+'-'.join([''.join([str(x)for x in fgoKernel.ClassicTurn.masterSkill[i]])for i in range(3)])]))
+    def teamup_show(self,arg):print('\n'.join([f'team name: {self.currentTeam}',f'team index: {fgoKernel.Main.teamIndex}','servant skill & hougu:','\n'.join(['  '.join([str(i+1),'-'.join([''.join([hex(x)[2:]for x in fgoKernel.ClassicTurn.skillInfo[i][j]])for j in range(3)]+[''.join([hex(x)[2:]for x in fgoKernel.ClassicTurn.houguInfo[i]])])])for i in range(6)]),'master skill:','   '+'-'.join([''.join([hex(x)[2:]for x in fgoKernel.ClassicTurn.masterSkill[i]])for i in range(3)])]))
     def teamup_set(self,arg):getattr(self,f'teamup_set_{arg.subcommand_1}')(arg)
     def teamup_set_servant(self,arg):
         if self.currentTeam=='DEFAULT':return
@@ -74,16 +75,15 @@ Some commands support <command> [<subcommand> ...] {{-h, --help}} for further in
         print('Change skill & hougu info of servant',arg.pos,'to','-'.join([''.join([str(x)for x in fgoKernel.ClassicTurn.skillInfo[pos][i]])for i in range(3)]+[''.join([str(x)for x in fgoKernel.ClassicTurn.houguInfo[pos]])]))
     def teamup_set_master(self,arg):
         if self.currentTeam=='DEFAULT':return
-        fgoKernel.ClassicTurn.masterSkill=(lambda r:(lambda p:[[int(p[i*4+j])for j in range(4+(i==2))]for i in range(3)])(r.group())if r else fgoKernel.ClassicTurn.masterSkill)(re.match('([0-9X]{3}[0-9A-FX]){2}[0-9X]{4}[0-9A-FX]$',arg.value.replace('-','')))
+        fgoKernel.ClassicTurn.masterSkill=(lambda r:(lambda p:[[int(p[i*4+j],16)for j in range(4+(i==2))]for i in range(3)])(r.group())if r else fgoKernel.ClassicTurn.masterSkill)(re.match('([0-9X]{3}[0-9A-FX]){2}[0-9X]{4}[0-9A-FX]$',arg.value.replace('-','')))
         print('Change master skill info to','-'.join([''.join([str(x)for x in fgoKernel.ClassicTurn.masterSkill[i]])for i in range(3)]))
     def teamup_set_index(self,arg):
-        self.config['teamIndex']=fgoKernel.Main.teamIndex=arg.value
+        self.config.teamIndex=fgoKernel.Main.teamIndex=arg.value
         print('Change team index to',arg.value)
     def do_exec(self,line):exec(line)
     def do_shell(self,line):os.system(line)
     def do_exit(self,line):
         'Exit FGO-py'
-        with open('fgoConfig.json','w')as f:json.dump(self.config,f,indent=4)
         return True
     def do_EOF(self,line):return self.do_exit(line)
     def do_version(self,line):
@@ -92,9 +92,9 @@ Some commands support <command> [<subcommand> ...] {{-h, --help}} for further in
     def do_connect(self,line):
         'Connect to a device'
         arg=parser_connect.parse_args(line.split())
-        if arg.list:return print(f'last connect: {self.config["device"]if self.config["device"]else None}',*fgoDevice.Device.enumDevices(),sep='\n')
-        self.config['device']=arg.name if arg.name else self.config['device']
-        fgoDevice.device=fgoDevice.Device(self.config['device'],self.config['package'])
+        if arg.list:return print(f'last connect: {self.config.device if self.config.device else None}',*fgoDevice.Device.enumDevices(),sep='\n')
+        self.config.device=arg.name if arg.name else self.config.device
+        fgoDevice.device=fgoDevice.Device(self.config.device,self.config.package)
     def complete_connect(self,text,line,begidx,endidx):
         return self.completecommands({
             '':['wsa','win']+[f'/{i}'for i in fgoDevice.helpers]+fgoDevice.Device.enumDevices()
@@ -135,6 +135,7 @@ Some commands support <command> [<subcommand> ...] {{-h, --help}} for further in
         'Continue last battle after abnormal break, use it as same as battle'
         arg=parser_battle.parse_args(line.split())
         assert fgoDevice.device.available
+        assert not fgoKernel.lock.locked()
         countdown(arg.sleep)
         try:
             signal.signal(signal.SIGINT,lambda*_:fgoKernel.schedule.stop())
@@ -143,7 +144,6 @@ Some commands support <command> [<subcommand> ...] {{-h, --help}} for further in
         except fgoKernel.ScriptStop as e:
             logger.critical(e)
             msg=str(e)
-        except KeyboardInterrupt:raise
         except BaseException as e:
             logger.exception(e)
             msg=repr(e)
@@ -161,9 +161,9 @@ Some commands support <command> [<subcommand> ...] {{-h, --help}} for further in
                 logger.warning(f'{color(0xC5E0B4)}{result["turnPerBattle"]:.1f}{color()} turns, {color(0xC5E0B4)}{result["timePerBattle"]//60:.0f}:{result["timePerBattle"]%60:02.1f}{color()} per battle in average')
                 if result["material"]:logger.warning(f'{", ".join(f"{i}{color(0xFFD966)}x{j}{color()}"for i,j in result["material"].items())} earned')
         # todo: notify
-        # if self.config['notifyEnable']:
-        #     for i in self.config['notifyParam']:
-        #         if not notify(**i,title='FGO-py',content=msg):logger.warning(f'Notify {self.config["notifyParam"]["provider"]} failed')
+        # if self.config.notifyEnable:
+        #     for i in self.config.notifyParam:
+        #         if not notify(**i,title='FGO-py',content=msg):logger.warning(f'Notify {i} failed')
     def do_call(self,line):
         'Call a Additional feature'
         arg=parser_call.parse_args(line.split())
@@ -171,7 +171,7 @@ Some commands support <command> [<subcommand> ...] {{-h, --help}} for further in
         self.do_continue(f'-s {arg.sleep}')
     def complete_call(self,text,line,begidx,endidx):
         return self.completecommands({
-            '':['gacha','lottery','mail','synthesis']
+            '':['gacha','lottery','mail','synthesis','gachaHistory']
         },text,line,begidx,endidx)
     def do_config(self,line):
         'Edit config item if exists and forward to schedule'
@@ -185,8 +185,9 @@ Some commands support <command> [<subcommand> ...] {{-h, --help}} for further in
         },text,line,begidx,endidx)
     def do_screenshot(self,line):
         'Take a screenshot'
+        arg=parser_screenshot.parse_args(line.split())
         assert fgoDevice.device.available
-        fgoKernel.Detect(0).save()
+        fgoKernel.Detect(0).save(arg.file,appendTime=arg.notime)
     def do_169(self,line):
         'Adapt none 16:9 screen'
         arg=parser_169.parse_args(line.split())
@@ -202,10 +203,16 @@ Some commands support <command> [<subcommand> ...] {{-h, --help}} for further in
         fgoDevice.device.press(chr(eval(arg.button))if arg.code else arg.button)
     def do_bench(self,line):
         'Benchmark'
-        assert fgoDevice.device.available
         arg=parser_bench.parse_args(line.split())
+        assert fgoDevice.device.available
         if not(arg.input or arg.output):arg.input=arg.output=True
         fgoKernel.bench(max(3,arg.number),arg.input,arg.output)
+    def do_lock(self,line):
+        'Lock FGO-py to temporary disable all functions without exiting or disconnecting'
+        arg=parser_lock.parse_args(line.split())
+        assert arg.unlock or not fgoKernel.lock.locked()
+        if arg.unlock:fgoKernel.lock.release()
+        else:fgoKernel.lock.acquire()
 
 ArgError=type('ArgError',(Exception,),{})
 def validator(type,func,desc='\b'):
@@ -250,7 +257,7 @@ parser_teamup_set_index=parser_teamup_set_.add_parser('index',help='Setup team i
 parser_teamup_set_index.add_argument('value',help='Team index (0-10)',type=int,choices=range(0,11))
 
 parser_call=ArgParser(prog='call',description=Cmd.do_call.__doc__)
-parser_call.add_argument('func',help='Additional feature name',choices=['gacha','lottery','mail','synthesis'])
+parser_call.add_argument('func',help='Additional feature name',choices=['gacha','lottery','mail','synthesis','gachaHistory'])
 parser_call.add_argument('-s','--sleep',help='Sleep several seconds before run (default: %(default)s)',type=validator(float,lambda x:x>=0,'nonnegative'),default=0)
 
 parser_169=ArgParser(prog='169',description=Cmd.do_169.__doc__)
@@ -265,4 +272,11 @@ parser_bench.add_argument('-n','--number',help='Number of runs (default: %(defau
 parser_bench.add_argument('-i','--input',help='Bench touch, if neither -i nor -o specified, bench them both',action='store_true')
 parser_bench.add_argument('-o','--output',help='Bench screenshot, if neither -i nor -o specified, bench them both',action='store_true')
 
-def main(args):Cmd().cmdloop()
+parser_lock=ArgParser(prog='lock',description=Cmd.do_lock.__doc__)
+parser_lock.add_argument('-u','--unlock',help='Unlock (lock if not specified)',action='store_true')
+
+parser_screenshot=ArgParser(prog='screenshot',description=Cmd.do_screenshot.__doc__)
+parser_screenshot.add_argument('file',help='Filename/path prefix (default: %(default)s)',default='Screenshot',nargs='?')
+parser_screenshot.add_argument('-t','--notime',help='Do not append Time after filename',action='store_false')
+
+def main(config):Cmd(config).cmdloop()
